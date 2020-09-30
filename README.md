@@ -40,3 +40,11 @@ Si tiene el write ya tiene el view --ejemplo company
 - crear nuevo permiso Django
 se añade el permiso al meta del modelo, se crea la migraciOn y aparece el
 nuevo permiso.
+
+DJANGO GUARDIAN
+- Permisos a nivel de instacia
+- AUTHENTICATION_BACKENDS
+    'guardian.backends.ObjectPermissionBackend'
+- Deshabilitar el usuario anónimo
+    ANONYMOUS_USER_NAME = None --> Todo usuario tiene que estar registrado y logeado para usar la app.
+- Ejecutar la migración

@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'learning.apps.LearningConfig',
-    'django_extensions'
+    'django_extensions',
+    'guardian'
 ]
 
 MIDDLEWARE = [
@@ -71,6 +72,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'permissions.wsgi.application'
 
+AUTHENTICATION_BACKENDS = (
+    'django.contrib.auth.backends.ModelBackend',  # this is default
+    'guardian.backends.ObjectPermissionBackend',
+)
+ANONYMOUS_USER_NAME = None
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
