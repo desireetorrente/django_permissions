@@ -10,6 +10,12 @@ class BotAdmin(GuardedModelAdmin):
     list_display = ('name', 'company', 'created_by' )
     actions = ['make_published']
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+    def delete_model(self, request, obj):
+        super().delete_model(request, obj)
+
     def get_queryset(self, request):
         qs = super().get_queryset(request)
         return get_objects_for_user(request.user, 'learning.view_bot', qs, accept_global_perms=False)
