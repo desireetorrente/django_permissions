@@ -61,10 +61,10 @@ class CompanyAdmin(GuardedModelAdmin):
                 messages.ERROR)
 
     def delete_model(self, request, obj):
-        qs = super().get_queryset(request)
-        user_instance_permissions = get_objects_for_user(
-            request.user, 'learning.delete_company', qs,
-            accept_global_perms=False)
+        # qs = super().get_queryset(request)
+        # print('query set', qs)
+        user_instance_permissions = request.user.has_perm(
+            'learning.delete_company', obj)
         print('test get user objects', user_instance_permissions)
         if user_instance_permissions:
             print('BORRADO REALIZADO')
