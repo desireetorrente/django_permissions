@@ -12,7 +12,7 @@ class Bot(models.Model):
     logo = models.ImageField(upload_to='img/', blank=True)
     company = models.ForeignKey(
         'Company', on_delete=models.SET_NULL, null=True)
-    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         permissions = (('bot_publish', 'Publica un bot'), )
@@ -24,6 +24,7 @@ class Bot(models.Model):
 class Company(models.Model):
     uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
     name = name = models.CharField(max_length=200)
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name

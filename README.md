@@ -41,7 +41,7 @@ Si tiene el write ya tiene el view --ejemplo company
 se añade el permiso al meta del modelo, se crea la migraciOn y aparece el
 nuevo permiso.
 
-DJANGO GUARDIAN
+# DJANGO GUARDIAN
 - Permisos a nivel de instacia
 - AUTHENTICATION_BACKENDS
     'guardian.backends.ObjectPermissionBackend'
