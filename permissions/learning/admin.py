@@ -1,9 +1,14 @@
 from django.contrib import admin
+from django.contrib.auth import get_user_model
 
 from .models import Bot, Company, UserProfile
 from guardian.admin import GuardedModelAdmin
 from guardian.shortcuts import get_objects_for_user
 from django.contrib import messages
+
+
+class UserProfileAdmin(GuardedModelAdmin):
+    pass
 
 
 class BotAdmin(GuardedModelAdmin):
@@ -39,41 +44,46 @@ class BotsInline(admin.TabularInline):
     model = Bot
 
 
+class UsersInline(admin.TabularInline):
+    model = UserProfile
+    extra = 0
+    fields = ('user', 'work_position')
+    verbose_name = 'user'
+    verbose_name_plural = 'users'
+
 class CompanyAdmin(GuardedModelAdmin):
     list_display = ('name', 'created_by')
     inlines = [
-        BotsInline,
+        UsersInline,
+        #BotsInline
     ]
 
     def save_model(self, request, obj, form, change):
-        qs = super().get_queryset(request)
-        user_instance_permissions = get_objects_for_user(
-            request.user, 'learning.change_company', qs,
-            accept_global_perms=False)
-        print('test get user objects', user_instance_permissions)
-        if user_instance_permissions:
-            print('CAMBIOS GUARDADOS')
-            super().save_model(request, obj, form, change)
-        else:
-            self.message_user(
-                request,
-                'You are not allowed to perform this action',
-                messages.ERROR)
+        super().save_model(request, obj, form, change)
 
     def delete_model(self, request, obj):
-        # qs = super().get_queryset(request)
-        # print('query set', qs)
-        user_instance_permissions = request.user.has_perm(
-            'learning.delete_company', obj)
-        print('test get user objects', user_instance_permissions)
-        if user_instance_permissions:
-            print('BORRADO REALIZADO')
-            super().delete_model(request, obj)
-        else:
-            self.message_user(
-                request,
-                'You are not allowed to perform this action',
-                messages.ERROR)
+        super().delete_model(request, obj)
+
+    def has_view_permission(self, request, obj=None):
+        if obj is None:
+            return super().has_view_permission(request, obj=obj)
+            
+        if request.user.has_perm('view_company', obj):
+            return super().has_view_permission(request, obj=obj)
+        
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        if request.user.has_perm('delete_company', obj):
+            return super().has_delete_permission(request, obj=obj)
+        
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        if request.user.has_perm('change_company', obj):
+            return super().has_change_permission(request, obj=obj)
+
+        return False
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -85,4 +95,4 @@ class CompanyAdmin(GuardedModelAdmin):
 # Register your models here.
 admin.site.register(Bot, BotAdmin)
 admin.site.register(Company, CompanyAdmin)
-admin.site.register(UserProfile)
+admin.site.register(UserProfile, UserProfileAdmin)

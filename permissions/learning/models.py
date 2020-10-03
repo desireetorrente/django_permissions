@@ -6,8 +6,12 @@ from django.db import models
 
 # Create your models here.
 class Bot(models.Model):
-
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4, 
+        unique=True, 
+        editable=False
+    )
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='img/', blank=True)
     company = models.ForeignKey(
@@ -22,7 +26,12 @@ class Bot(models.Model):
 
 
 class Company(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4, 
+        unique=True, 
+        editable=False
+    )
     name = name = models.CharField(max_length=200)
     created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
@@ -31,11 +40,20 @@ class Company(models.Model):
 
 
 class UserProfile(models.Model):
-    uuid = models.UUIDField(primary_key=True, default=uuid.uuid4)
+    id = models.UUIDField(
+        primary_key=True, 
+        default=uuid.uuid4, 
+        unique=True, 
+        editable=False
+    )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.ForeignKey(
         'Company', on_delete=models.SET_NULL, null=True)
     work_position = models.CharField(max_length=100)
+    
+    class Meta:
+        verbose_name = "user"
+        verbose_name_plural = "users"
 
     def __str__(self):
         return self.user.username
