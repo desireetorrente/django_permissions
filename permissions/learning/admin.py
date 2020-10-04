@@ -69,7 +69,7 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     )
 
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
-    list_filter = ('is_staff', 'is_superuser', 'is_active', 'groups')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
     search_fields = ('username', 'first_name', 'last_name', 'email')
     ordering = ('username',)
     filter_horizontal = ('groups', 'user_permissions',)
@@ -114,6 +114,12 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
         return get_objects_for_user(
             request.user, 'view_user', qs,
             accept_global_perms=False)
+
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change) 
+
+        if not request.user.is_superuser:
+            obj.grant_permissions_to(request.user)
 
 class UserProfileAdmin(GuardedModelAdmin):
 
@@ -220,9 +226,8 @@ class CompanyAdmin(GuardedModelAdmin):
 
 
 # Now register the new UserAdmin...
-admin.site.unregister(get_user_model())
 admin.site.register(get_user_model(), UserAdmin)
 # Register the rest of your models here
 admin.site.register(Bot, BotAdmin)
 admin.site.register(Company, CompanyAdmin)
-admin.site.register(UserProfile, UserProfileAdmin)
+#admin.site.register(UserProfile, UserProfileAdmin)

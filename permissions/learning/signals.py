@@ -17,35 +17,60 @@ def user_post_save(sender, **kwargs):
     """
     user, created = kwargs["instance"], kwargs["created"]
 
-    # Allow create superuser
     if not user.is_superuser:
         user_role = user.userprofile.role
 
-        # TODO try the implementation without the statement
-        # Anonymous_user because in the settings we set
-        # the anonymous user to None.
         if created and user.username != settings.ANONYMOUS_USER_NAME:
             # Global permissions
             if user_role == UserProfile.Role.EDITOR:
-                global_permissions_template = Group.objects.get(
-                    name="Employee Permissions Template")
-
+                global_permissions_template = Group.objects.get(name=f"Employee Permissions Template")
+                # global_permissions = Permission.objects.filter(codename__in=[
+                #     'view_bot',
+                #     'add_bot',
+                #     'change_bot',
+                #     'delete_bot',
+                #     'view_company',
+                #     'view_user',
+                #     'change_user',
+                # ])
+            
             if user_role == UserProfile.Role.ADMIN:
-                global_permissions_template = Group.objects.get(
-                    name="Admin Permissions Template")
+                global_permissions_template = Group.objects.get(name=f"Admin Permissions Template")
+                # global_permissions = Permission.objects.filter(codename__in=[
+                #     'view_bot',
+                #     'add_bot',
+                #     'change_bot',
+                #     'delete_bot',
+                #     'view_company',
+                #     'change_company',
+                #     'view_user',
+                #     'add_user',
+                #     'change_user',
+                #     'delete_user',
+                # ])
 
             if user_role == UserProfile.Role.AGENT:
-                global_permissions_template = Group.objects.get(
-                    name="Agent Permissions Template")
+                global_permissions_template = Group.objects.get(name=f"Agent Permissions Template")
+                # global_permissions = Permission.objects.filter(codename__in=[
+                #     'view_bot',
+                #     'add_bot',
+                #     'change_bot',
+                #     'delete_bot',
+                #     'view_company',
+                #     'add_company',
+                #     'change_company',
+                #     'delete_company',
+                #     'view_user',
+                #     'add_user',
+                #     'change_user',
+                #     'delete_user',
+                # ])
 
             # Specific permissions
-            read_permissions_group, _ = Group.objects.get_or_create(
-                name=f"{user.username}: Read")
-            write_permissions_group, _ = Group.objects.get_or_create(
-                name=f"{user.username}: Write")
-            own_permissions_group, _ = Group.objects.get_or_create(
-                name=f"{user.username}: Own")
-
+            read_permissions_group, _ = Group.objects.get_or_create(name=f"{user.username}: Read")
+            write_permissions_group, _ = Group.objects.get_or_create(name=f"{user.username}: Write")
+            own_permissions_group, _ = Group.objects.get_or_create(name=f"{user.username}: Own")
+            
             # Read
             assign_perm('view_user', read_permissions_group, user)
 

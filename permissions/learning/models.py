@@ -1,8 +1,22 @@
 import uuid
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser, Permission, Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+
+from guardian.shortcuts import assign_perm
+
+class User(AbstractUser):
+
+    def grant_permissions_to(self, creator):
+        if creator.has_perm('learning.view_user'):
+            read_permissions = Group.objects.get(name=f"{self.username}: Read")
+            creator.groups.add(read_permissions)
+        
+        if creator.has_perm('learning.change_user') and \
+                creator.has_perm('learning.delete_user'):
+            write_permissions = Group.objects.get(name=f"{self.username}: Write")
+            creator.groups.add(write_permissions)
 
 
 # Create your models here.
@@ -63,8 +77,8 @@ class UserProfile(models.Model):
     work_position = models.CharField(max_length=100)
     
     class Meta:
-        verbose_name = "user"
-        verbose_name_plural = "users"
+        verbose_name = "user profile"
+        verbose_name_plural = "user profiles"
 
     def __str__(self):
         return self.user.username

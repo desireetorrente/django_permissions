@@ -72,6 +72,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'permissions.wsgi.application'
 
+AUTH_USER_MODEL = 'learning.User'
+
 AUTHENTICATION_BACKENDS = (
     'django.contrib.auth.backends.ModelBackend',  # this is default
     'guardian.backends.ObjectPermissionBackend',
@@ -86,6 +88,13 @@ DATABASES = {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
+}
+
+# MIGRATIONS
+# ------------------------------------------------------------------------------
+# https://docs.djangoproject.com/en/dev/ref/settings/#migration-modules
+MIGRATION_MODULES = {
+    "auth": "contrib.auth.migrations"
 }
 
 
