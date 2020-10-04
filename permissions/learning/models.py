@@ -2,6 +2,7 @@ import uuid
 
 from django.contrib.auth.models import User
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -40,6 +41,11 @@ class Company(models.Model):
 
 
 class UserProfile(models.Model):
+    class Role(models.TextChoices):
+        EDITOR = 'ED', _('Editor')
+        ADMIN = 'AD', _('Admin')
+        AGENT = 'AG', _('Agent')
+
     id = models.UUIDField(
         primary_key=True, 
         default=uuid.uuid4, 
@@ -49,6 +55,11 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     company = models.ForeignKey(
         'Company', on_delete=models.SET_NULL, null=True)
+    role = models.CharField(
+        max_length=2,
+        choices=Role.choices,
+        default=Role.EDITOR,
+    )
     work_position = models.CharField(max_length=100)
     
     class Meta:
