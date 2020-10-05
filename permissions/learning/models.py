@@ -20,12 +20,12 @@ class User(AbstractUser):
 
     def grant_company_permissions(self):
         if self.has_perm('learning.view_company'):
-            read_permissions = Group.objects.get(name=f"{self.company.name}: Read")
+            read_permissions = Group.objects.get(name=f"{self.userprofile.company.name}: Read")
             self.groups.add(read_permissions)
 
         if self.has_perm('learning.change_company') and not \
                 self.has_perm('learning.delete_company'):
-            own_permissions = Group.objects.get(name=f"{self.company.name}: Own")
+            own_permissions = Group.objects.get(name=f"{self.userprofile.company.name}: Own")
             self.groups.add(own_permissions)
 
 
@@ -60,20 +60,20 @@ class Company(models.Model):
     name = name = models.CharField(max_length=200)
     created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
-    def grant_permissions_to(self, creator):
-        if creator.has_perm('learning.view_company'):
+    def grant_permissions(self, user):
+        if user.has_perm('learning.view_company'):
             read_permissions = Group.objects.get(name=f"{self.name}: Read")
-            creator.groups.add(read_permissions)
+            user.groups.add(read_permissions)
 
-        if creator.has_perm('learning.change_company') and \
-                creator.has_perm('learning.delete_company'):
+        if user.has_perm('learning.change_company') and \
+                user.has_perm('learning.delete_company'):
             write_permissions = Group.objects.get(name=f"{self.name}: Write")
-            creator.groups.add(write_permissions)
+            user.groups.add(write_permissions)
 
-        if creator.has_perm('learning.change_company') and not \
-                creator.has_perm('learning.delete_company'):
+        if user.has_perm('learning.change_company') and not \
+                user.has_perm('learning.delete_company'):
             own_permissions = Group.objects.get(name=f"{self.name}: Own")
-            creator.groups.add(own_permissions)
+            user.groups.add(own_permissions)
 
     def __str__(self):
         return self.name

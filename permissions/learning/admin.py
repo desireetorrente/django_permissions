@@ -118,7 +118,7 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     def save_model(self, request, user, form, change):
         super().save_model(request, user, form, change) 
 
-        if not request.user.is_superuser:
+        if not (request.user.is_superuser or change):
             user.grant_permissions(request.user)
             user.grant_company_permissions()
 
@@ -227,10 +227,10 @@ class CompanyAdmin(GuardedModelAdmin):
             accept_global_perms=False)
 
     def save_model(self, request, company, form, change):
-        super().save_model(request, company, form, change) 
+        super().save_model(request, company, form, change)
 
-        if not request.user.is_superuser:
-            company.grant_permissions_to(request.user)
+        if not (request.user.is_superuser or change):
+            company.grant_permissions(request.user)
 
 
 # Now register the new UserAdmin...

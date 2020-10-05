@@ -40,8 +40,7 @@ def create_permission_templates(apps, schema_editor):
         'delete_user',
         'view_userprofile',
         'add_userprofile',
-        'change_userprofile',
-        'delete_userprofile'
+        'change_userprofile'
     ])
 
     admin_permission_template = Group.objects.create(name="Admin Permissions Template")
@@ -62,8 +61,7 @@ def create_permission_templates(apps, schema_editor):
         'delete_user',
         'view_userprofile',
         'add_userprofile',
-        'change_userprofile',
-        'delete_userprofile'
+        'change_userprofile'
     ])
 
     agent_permission_template = Group.objects.create(name="Agent Permissions Template")
