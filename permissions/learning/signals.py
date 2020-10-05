@@ -184,7 +184,7 @@ def bot_post_save(sender, **kwargs):
     # Specific permissions
     read_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Read")
     write_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Write")
-    own_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Publish")
+    execute_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Execute")
 
     # Read
     assign_perm('view_bot', read_permissions_group, bot)
@@ -194,7 +194,7 @@ def bot_post_save(sender, **kwargs):
     assign_perm('delete_bot', write_permissions_group, bot)
 
     # Execute
-    assign_perm('bot_publish', own_permissions_group, bot)
+    assign_perm('publish_bot', execute_permissions_group, bot)
 
 
 @receiver(post_delete, sender=Bot)
@@ -219,8 +219,8 @@ def bot_post_delete(sender, **kwargs):
         pass
 
     try:
-        own_permissions_group = Group.objects.get(
-            name=f"{bot.name}: Publish")
-        own_permissions_group.delete()
+        execute_permissions_group = Group.objects.get(
+            name=f"{bot.name}: Execute")
+        execute_permissions_group.delete()
     except Group.DoesNotExist:
         pass

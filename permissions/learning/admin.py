@@ -193,6 +193,16 @@ class BotAdmin(GuardedModelAdmin):
                 'You are not allowed to perform this action',
                 messages.ERROR)
 
+    def save_model(self, request, bot, form, change):
+        super().save_model(request, bot, form, change) 
+
+        if not (request.user.is_superuser or change):
+            bot.grant_permissions(request.user)
+
+        profiles = bot.company.userprofile_set.all()
+        for profile in profiles:
+            bot.grant_permissions(profile.user)
+
     make_published.short_description = "Publish bot"
 
 

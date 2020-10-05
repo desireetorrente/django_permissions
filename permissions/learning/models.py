@@ -44,10 +44,24 @@ class Bot(models.Model):
     created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     class Meta:
-        permissions = (('bot_publish', 'Publica un bot'), )
+        permissions = (('publish_bot', 'Can publish a bot'), )
 
     def __str__(self):
         return self.name
+
+    def grant_permissions(self, user):
+        if user.has_perm('learning.view_bot'):
+            read_permissions = Group.objects.get(name=f"{self.name}: Read")
+            user.groups.add(read_permissions)
+
+        if user.has_perm('learning.change_bot') and \
+                user.has_perm('learning.delete_bot'):
+            write_permissions = Group.objects.get(name=f"{self.name}: Write")
+            user.groups.add(write_permissions)
+
+        if user.has_perm('learning.publish_bot'):
+            execute_permissions = Group.objects.get(name=f"{self.name}: Execute")
+            user.groups.add(execute_permissions)
 
 
 class Company(models.Model):
