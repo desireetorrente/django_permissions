@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 
 from guardian.shortcuts import assign_perm
 
-from .models import UserProfile, Company
+from .models import UserProfile, Company, Bot
 
 
 @receiver(post_save, sender=get_user_model())
@@ -129,9 +129,6 @@ def company_post_save(sender, **kwargs):
     Create all permission groups for the new created company: Read, Write, Own.
     """
     company, created = kwargs["instance"], kwargs["created"]
-    print('company', company)
-    print('company name', company.name)
-    print('kwargs', kwargs)
 
     # Specific permissions
     read_permissions_group, _ = Group.objects.get_or_create(name=f"{company.name}: Read")
@@ -147,10 +144,6 @@ def company_post_save(sender, **kwargs):
 
     # Own
     assign_perm('change_company', own_permissions_group, company)
-
-    print('read_permissions_group', read_permissions_group.id)
-    print('write_permissions_group', write_permissions_group)
-    print('own_permissions_group', own_permissions_group)
 
 
 @receiver(post_delete, sender=Company)
@@ -177,6 +170,57 @@ def company_post_delete(sender, **kwargs):
     try:
         own_permissions_group = Group.objects.get(
             name=f"{company.name}: Own")
+        own_permissions_group.delete()
+    except Group.DoesNotExist:
+        pass
+
+@receiver(post_save, sender=Bot)
+def bot_post_save(sender, **kwargs):
+    """
+    Create all permission groups for the new created bot: Read, Write, Publish.
+    """
+    bot, created = kwargs["instance"], kwargs["created"]
+
+    # Specific permissions
+    read_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Read")
+    write_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Write")
+    own_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Publish")
+
+    # Read
+    assign_perm('view_bot', read_permissions_group, bot)
+
+    # Write
+    assign_perm('change_bot', write_permissions_group, bot)
+    assign_perm('delete_bot', write_permissions_group, bot)
+
+    # Execute
+    assign_perm('bot_publish', own_permissions_group, bot)
+
+
+@receiver(post_delete, sender=Bot)
+def bot_post_delete(sender, **kwargs):
+    """
+    Delete all permission groups for the deleted bot: Read, Write, Publish.
+    """
+    bot = kwargs["instance"]
+
+    try:
+        read_permissions_group = Group.objects.get(
+            name=f"{bot.name}: Read")
+        read_permissions_group.delete()
+    except Group.DoesNotExist:
+        pass
+
+    try:
+        write_permissions_group = Group.objects.get(
+            name=f"{bot.name}: Write")
+        write_permissions_group.delete()
+    except Group.DoesNotExist:
+        pass
+
+    try:
+        own_permissions_group = Group.objects.get(
+            name=f"{bot.name}: Publish")
         own_permissions_group.delete()
     except Group.DoesNotExist:
         pass
