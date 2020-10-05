@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 
 from guardian.shortcuts import assign_perm
 
-from .models import UserProfile
+from .models import UserProfile, Company
 
 
 @receiver(post_save, sender=get_user_model())
@@ -66,24 +66,31 @@ def user_post_save(sender, **kwargs):
                 #     'delete_user',
                 # ])
 
-            # Specific permissions
-            read_permissions_group, _ = Group.objects.get_or_create(name=f"{user.username}: Read")
-            write_permissions_group, _ = Group.objects.get_or_create(name=f"{user.username}: Write")
-            own_permissions_group, _ = Group.objects.get_or_create(name=f"{user.username}: Own")
-            
+            # User permissions
+            user_read_permissions, _ = Group.objects.get_or_create(name=f"{user.username}: Read")
+            user_write_permissions, _ = Group.objects.get_or_create(name=f"{user.username}: Write")
+            user_own_permissions, _ = Group.objects.get_or_create(name=f"{user.username}: Own")
+
             # Read
-            assign_perm('view_user', read_permissions_group, user)
+            assign_perm('view_user', user_read_permissions, user)
 
             # Write
-            assign_perm('change_user', write_permissions_group, user)
-            assign_perm('delete_user', write_permissions_group, user)
+            assign_perm('change_user', user_write_permissions, user)
+            assign_perm('delete_user', user_write_permissions, user)
 
             # Own
-            assign_perm('change_user', own_permissions_group, user)
+            assign_perm('change_user', user_own_permissions, user)
 
             user.groups.add(global_permissions_template)
-            user.groups.add(read_permissions_group)
-            user.groups.add(own_permissions_group)
+            user.groups.add(user_read_permissions)
+            user.groups.add(user_own_permissions)
+
+            # Company permissions
+            company_read_permissions = Group.objects.get(name=f"{user.userprofile.company.name}: Read")
+            company_own_permissions = Group.objects.get(name=f"{user.userprofile.company.name}: Own")
+
+            user.groups.add(company_read_permissions)
+            user.groups.add(company_own_permissions)
 
 
 @receiver(post_delete, sender=get_user_model())
@@ -114,3 +121,62 @@ def user_post_delete(sender, **kwargs):
             own_permissions_group.delete()
         except Group.DoesNotExist:
             pass
+
+
+@receiver(post_save, sender=Company)
+def company_post_save(sender, **kwargs):
+    """
+    Create all permission groups for the new created company: Read, Write, Own.
+    """
+    company, created = kwargs["instance"], kwargs["created"]
+    print('company', company)
+    print('company name', company.name)
+    print('kwargs', kwargs)
+
+    # Specific permissions
+    read_permissions_group, _ = Group.objects.get_or_create(name=f"{company.name}: Read")
+    write_permissions_group, _ = Group.objects.get_or_create(name=f"{company.name}: Write")
+    own_permissions_group, _ = Group.objects.get_or_create(name=f"{company.name}: Own")
+
+    # Read
+    assign_perm('view_company', read_permissions_group, company)
+
+    # Write
+    assign_perm('change_company', write_permissions_group, company)
+    assign_perm('delete_company', write_permissions_group, company)
+
+    # Own
+    assign_perm('change_company', own_permissions_group, company)
+
+    print('read_permissions_group', read_permissions_group.id)
+    print('write_permissions_group', write_permissions_group)
+    print('own_permissions_group', own_permissions_group)
+
+
+@receiver(post_delete, sender=Company)
+def company_post_delete(sender, **kwargs):
+    """
+    Delete all permission groups for the deleted company: Read, Write, Own.
+    """
+    company = kwargs["instance"]
+
+    try:
+        read_permissions_group = Group.objects.get(
+            name=f"{company.name}: Read")
+        read_permissions_group.delete()
+    except Group.DoesNotExist:
+        pass
+
+    try:
+        write_permissions_group = Group.objects.get(
+            name=f"{company.name}: Write")
+        write_permissions_group.delete()
+    except Group.DoesNotExist:
+        pass
+
+    try:
+        own_permissions_group = Group.objects.get(
+            name=f"{company.name}: Own")
+        own_permissions_group.delete()
+    except Group.DoesNotExist:
+        pass
