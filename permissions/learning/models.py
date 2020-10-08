@@ -12,7 +12,7 @@ from guardian.shortcuts import assign_perm
 class User(AbstractUser):
 
     company = models.ForeignKey(
-        'Company', on_delete=models.SET_NULL, null=True, related_name='company')
+        'Company', on_delete=models.SET_NULL, null=True, related_name='users')
 
     def grant_permissions(self, user):
         if user.has_perm('learning.view_user'):
@@ -55,8 +55,8 @@ class Bot(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='img/', blank=True)
     company = models.ForeignKey(
-        'Company', on_delete=models.SET_NULL, null=True, related_name='company_owner')
-    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL, related_name='created_by')
+        'Company', on_delete=models.SET_NULL, null=True, related_name='bots')
+    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     class Meta:
         permissions = (('publish_bot', 'Can publish a bot'), )
