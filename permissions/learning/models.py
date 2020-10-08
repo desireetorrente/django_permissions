@@ -54,6 +54,7 @@ class Bot(models.Model):
             read_permissions = Group.objects.get(name=f"{self.name}: Read")
             user.groups.add(read_permissions)
 
+        # ---------------- no hay own
         if user.has_perm('learning.change_bot') and \
                 user.has_perm('learning.delete_bot'):
             write_permissions = Group.objects.get(name=f"{self.name}: Write")
@@ -63,12 +64,33 @@ class Bot(models.Model):
             execute_permissions = Group.objects.get(name=f"{self.name}: Execute")
             user.groups.add(execute_permissions)
 
+    def bulk_grant_permissions(self, template, users):
+        # Grant permissions to a queryset of users
+
+        read_permissions = Group.objects.get(name=f"{self.name}: Read")
+        write_permissions = Group.objects.get(name=f"{self.name}: Write")
+
+        if template == 'Admin Permissions Template':
+            execute_permissions = Group.objects.get(
+                name=f"{self.name}: Execute")
+            execute_permissions.user_set.add(*users)
+            read_permissions.user_set.add(*users)
+            write_permissions.user_set.add(*users)
+
+        if template == 'Agent Permissions Template':
+            read_permissions.user_set.add(*users)
+            write_permissions.user_set.add(*users)
+
+        if template == 'Employee Permissions Template':
+            read_permissions.user_set.add(*users)
+            write_permissions.user_set.add(*users)
+
 
 class Company(models.Model):
     id = models.UUIDField(
-        primary_key=True, 
-        default=uuid.uuid4, 
-        unique=True, 
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
         editable=False
     )
     name = name = models.CharField(max_length=200)

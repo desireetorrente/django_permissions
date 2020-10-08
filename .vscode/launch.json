@@ -10,9 +10,11 @@
             "request": "launch",
             "program": "${workspaceFolder}/permissions/manage.py",
             "args": [
-                "runserver"
+                "runserver",
+                "--noreload"
             ],
-            "django": true
+            "django": true,
+            "justMyCode": false
         }
     ]
 }

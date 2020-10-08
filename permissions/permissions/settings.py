@@ -39,7 +39,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'learning.apps.LearningConfig',
     'django_extensions',
-    'guardian'
+    'guardian',
+    'debug_toolbar',
+    'silk'
 ]
 
 MIDDLEWARE = [
@@ -50,7 +52,16 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'silk.middleware.SilkyMiddleware'
 ]
+
+DEBUG_TOOLBAR_CONFIG = {
+    "DISABLE_PANELS": ["debug_toolbar.panels.redirects.RedirectsPanel"],
+    "SHOW_TEMPLATE_CONTEXT": True,
+}
+
+INTERNAL_IPS = ["127.0.0.1"]
 
 ROOT_URLCONF = 'permissions.urls'
 

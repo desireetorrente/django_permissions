@@ -13,7 +13,6 @@ from .models import Bot, Company, UserProfile
 from .forms import UserChangeForm, UserCreationForm
 
 
-
 class BotsInline(admin.TabularInline):
     model = Bot
 
@@ -42,7 +41,7 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm
-    
+
     inlines = [
         UserProfileInline
     ]
@@ -79,28 +78,28 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
             return self.add_fieldsets
 
         if request.user.is_superuser:
-            return ( 
-                self.fieldsets + 
-                self.personalinfo_fieldsets + 
-                self.permission_fieldsets + 
+            return (
+                self.fieldsets +
+                self.personalinfo_fieldsets +
+                self.permission_fieldsets +
                 self.importantdates_fieldsets
             )
 
-        return ( 
-                self.fieldsets + 
+        return (
+                self.fieldsets +
                 self.personalinfo_fieldsets
             )
 
     def has_view_permission(self, request, obj=None):
         if obj is None or request.user.has_perm('view_user', obj):
             return super().has_view_permission(request, obj=obj)
-        
+
         return False
 
     def has_delete_permission(self, request, obj=None):
         if request.user.has_perm('delete_user', obj):
             return super().has_delete_permission(request, obj=obj)
-        
+
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -116,7 +115,7 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
             accept_global_perms=False)
 
     def save_model(self, request, user, form, change):
-        super().save_model(request, user, form, change) 
+        super().save_model(request, user, form, change)
 
         if not (request.user.is_superuser or change):
             user.grant_permissions(request.user)
@@ -128,13 +127,13 @@ class UserProfileAdmin(GuardedModelAdmin):
     def has_view_permission(self, request, obj=None):
         if obj is None or request.user.has_perm('view_userprofile', obj):
             return super().has_view_permission(request, obj=obj)
-        
+
         return False
 
     def has_delete_permission(self, request, obj=None):
         if request.user.has_perm('delete_userprofile', obj):
             return super().has_delete_permission(request, obj=obj)
-        
+
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -157,13 +156,13 @@ class BotAdmin(GuardedModelAdmin):
     def has_view_permission(self, request, obj=None):
         if obj is None or request.user.has_perm('view_bot', obj):
             return super().has_view_permission(request, obj=obj)
-        
+
         return False
 
     def has_delete_permission(self, request, obj=None):
         if request.user.has_perm('delete_bot', obj):
             return super().has_delete_permission(request, obj=obj)
-        
+
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -194,14 +193,44 @@ class BotAdmin(GuardedModelAdmin):
                 messages.ERROR)
 
     def save_model(self, request, bot, form, change):
-        super().save_model(request, bot, form, change) 
+        super().save_model(request, bot, form, change)
 
-        if not (request.user.is_superuser or change):
-            bot.grant_permissions(request.user)
+        # if not (request.user.is_superuser or change):
+        #     bot.grant_permissions(request.user)
 
-        profiles = bot.company.userprofile_set.all()
-        for profile in profiles:
-            bot.grant_permissions(profile.user)
+        # User = get_user_model()
+        # profiles = bot.company.userprofile_set.all()
+        # # Profiles with Admin Permissions Template
+        # users_admin_template = User.objects.filter(
+        #     userprofile__in=profiles,
+        #     groups__name='Admin Permissions Template')
+        # if users_admin_template:
+        #     bot.bulk_grant_permissions(
+        #         'Admin Permissions Template',
+        #         users_admin_template
+        #     )
+
+        # # Profiles with Agent Permissions Template
+        # users_agent_template = User.objects.filter(
+        #     userprofile__in=profiles,
+        #     groups__name='Agent Permissions Template')
+
+        # if users_agent_template:
+        #     bot.bulk_grant_permissions(
+        #         'Agent Permissions Template',
+        #         users_agent_template
+        #     )
+
+        # # Profiles with Employee Permissions Template
+        # users_employee_template = User.objects.filter(
+        #     userprofile__in=profiles,
+        #     groups__name='Employee Permissions Template')
+
+        # if users_employee_template:
+        #     bot.bulk_grant_permissions(
+        #         'Employee Permissions Template',
+        #         users_employee_template
+        #     )
 
     make_published.short_description = "Publish bot"
 
@@ -215,13 +244,13 @@ class CompanyAdmin(GuardedModelAdmin):
     def has_view_permission(self, request, obj=None):
         if obj is None or request.user.has_perm('view_company', obj):
             return super().has_view_permission(request, obj=obj)
-        
+
         return False
 
     def has_delete_permission(self, request, obj=None):
         if request.user.has_perm('delete_company', obj):
             return super().has_delete_permission(request, obj=obj)
-        
+
         return False
 
     def has_change_permission(self, request, obj=None):
@@ -248,4 +277,4 @@ admin.site.register(get_user_model(), UserAdmin)
 # Register the rest of your models here
 admin.site.register(Bot, BotAdmin)
 admin.site.register(Company, CompanyAdmin)
-#admin.site.register(UserProfile, UserProfileAdmin)
+# admin.site.register(UserProfile, UserProfileAdmin)
