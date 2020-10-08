@@ -35,15 +35,6 @@ class User(AbstractUser):
             self.groups.add(own_permissions)
 
 
-# Direct FK for UserProfile model
-class UserObjectPermission(UserObjectPermissionBase):
-    content_object = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
-class UserGroupObjectPermission(GroupObjectPermissionBase):
-    content_object = models.ForeignKey(User, on_delete=models.CASCADE)
-
-
 # Create your models here.
 class Bot(models.Model):
     id = models.UUIDField(
@@ -102,7 +93,7 @@ class Bot(models.Model):
 
 
 # Direct FK for Bot model
-class BotObjectPermission(UserObjectPermissionBase):
+class BotUserObjectPermission(UserObjectPermissionBase):
     content_object = models.ForeignKey(Bot, on_delete=models.CASCADE)
 
 
@@ -139,7 +130,7 @@ class Company(models.Model):
 
 
 # Direct FK for Company model
-class CompanyObjectPermission(UserObjectPermissionBase):
+class CompanyUserObjectPermission(UserObjectPermissionBase):
     content_object = models.ForeignKey(Company, on_delete=models.CASCADE)
 
 
