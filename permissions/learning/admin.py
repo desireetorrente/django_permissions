@@ -9,7 +9,7 @@ from django.utils.translation import gettext, gettext_lazy as _
 from guardian.admin import GuardedModelAdmin, GuardedModelAdminMixin
 from guardian.shortcuts import get_objects_for_user
 
-from .models import Bot, Company, UserProfile
+from .models import Bot, Company
 from .forms import UserChangeForm, UserCreationForm
 
 
@@ -17,40 +17,23 @@ class BotsInline(admin.TabularInline):
     model = Bot
 
 
-# class UsersInline(admin.TabularInline):
-#     model = UserProfile
-#     extra = 0
-#     fields = ('user', 'work_position')
-#     readonly_fields = ('user',)
-#     verbose_name = 'user'
-#     verbose_name_plural = 'users'
-
-#     def has_add_permission(self, request, obj):
-#         return False
-
-
-class UserProfileInline(admin.StackedInline):
-    model = UserProfile
-    extra = 1
-    fields = ('role',)
-    verbose_name = 'profesional info'
-    verbose_name_plural = 'profesional info'
-
-
 class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     # The forms to add and change user instances
     form = UserChangeForm
     add_form = UserCreationForm
 
-    inlines = [
-        UserProfileInline
-    ]
-
     fieldsets = (
-        (None, {'fields': ('username', 'password', 'company')}),
+        (None, {'fields': ('username', 'password')}),
     )
-    personalinfo_fieldsets = (
-        (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
+    professionalinfo_fieldsets = (
+        (_('Professional info'), {'fields': (
+            'first_name', 
+            'last_name', 
+            'email',
+            'company', 
+            'role', 
+            'work_position'
+        )}),
     )
     permission_fieldsets = (
         (_('Permissions'), {
@@ -63,7 +46,7 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2', 'company'),
+            'fields': ('username', 'password1', 'password2', 'company', 'role'),
         }),
     )
 
@@ -80,14 +63,14 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
         if request.user.is_superuser:
             return (
                 self.fieldsets +
-                self.personalinfo_fieldsets +
+                self.professionalinfo_fieldsets +
                 self.permission_fieldsets +
                 self.importantdates_fieldsets
             )
 
         return (
                 self.fieldsets +
-                self.personalinfo_fieldsets
+                self.professionalinfo_fieldsets
             )
 
     def has_view_permission(self, request, obj=None):
