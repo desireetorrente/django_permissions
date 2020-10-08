@@ -4,9 +4,15 @@ from django.contrib.auth.models import AbstractUser, Permission, Group
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 
+from guardian.models import UserObjectPermissionBase
+from guardian.models import GroupObjectPermissionBase
 from guardian.shortcuts import assign_perm
 
+
 class User(AbstractUser):
+
+    company = models.ForeignKey(
+        'Company', on_delete=models.SET_NULL, null=True, related_name='users')
 
     def grant_permissions(self, user):
         if user.has_perm('learning.view_user'):
@@ -40,7 +46,7 @@ class Bot(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='img/', blank=True)
     company = models.ForeignKey(
-        'Company', on_delete=models.SET_NULL, null=True)
+        'Company', on_delete=models.SET_NULL, null=True, related_name='bots')
     created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     class Meta:
@@ -86,6 +92,15 @@ class Bot(models.Model):
             write_permissions.user_set.add(*users)
 
 
+# Direct FK for Bot model
+class BotUserObjectPermission(UserObjectPermissionBase):
+    content_object = models.ForeignKey(Bot, on_delete=models.CASCADE)
+
+
+class BotGroupObjectPermission(GroupObjectPermissionBase):
+    content_object = models.ForeignKey(Bot, on_delete=models.CASCADE)
+
+
 class Company(models.Model):
     id = models.UUIDField(
         primary_key=True,
@@ -94,7 +109,6 @@ class Company(models.Model):
         editable=False
     )
     name = name = models.CharField(max_length=200)
-    created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     def grant_permissions(self, user):
         if user.has_perm('learning.view_company'):
@@ -115,6 +129,15 @@ class Company(models.Model):
         return self.name
 
 
+# Direct FK for Company model
+class CompanyUserObjectPermission(UserObjectPermissionBase):
+    content_object = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+
+class CompanyGroupObjectPermission(GroupObjectPermissionBase):
+    content_object = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+
 class UserProfile(models.Model):
     class Role(models.TextChoices):
         EDITOR = 'ED', _('Editor')
@@ -128,15 +151,13 @@ class UserProfile(models.Model):
         editable=False
     )
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    company = models.ForeignKey(
-        'Company', on_delete=models.SET_NULL, null=True)
     role = models.CharField(
         max_length=2,
         choices=Role.choices,
         default=Role.EDITOR,
     )
     work_position = models.CharField(max_length=100)
-    
+
     class Meta:
         verbose_name = "user profile"
         verbose_name_plural = "user profiles"
