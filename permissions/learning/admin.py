@@ -17,22 +17,22 @@ class BotsInline(admin.TabularInline):
     model = Bot
 
 
-class UsersInline(admin.TabularInline):
-    model = UserProfile
-    extra = 0
-    fields = ('user', 'work_position')
-    readonly_fields = ('user',)
-    verbose_name = 'user'
-    verbose_name_plural = 'users'
+# class UsersInline(admin.TabularInline):
+#     model = UserProfile
+#     extra = 0
+#     fields = ('user', 'work_position')
+#     readonly_fields = ('user',)
+#     verbose_name = 'user'
+#     verbose_name_plural = 'users'
 
-    def has_add_permission(self, request, obj):
-        return False
+#     def has_add_permission(self, request, obj):
+#         return False
 
 
 class UserProfileInline(admin.StackedInline):
     model = UserProfile
     extra = 1
-    fields = ('company', 'role',)
+    fields = ('role',)
     verbose_name = 'profesional info'
     verbose_name_plural = 'profesional info'
 
@@ -47,7 +47,7 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     ]
 
     fieldsets = (
-        (None, {'fields': ('username', 'password')}),
+        (None, {'fields': ('username', 'password', 'company')}),
     )
     personalinfo_fieldsets = (
         (_('Personal info'), {'fields': ('first_name', 'last_name', 'email')}),
@@ -63,13 +63,13 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('username', 'password1', 'password2'),
+            'fields': ('username', 'password1', 'password2', 'company'),
         }),
     )
 
-    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff')
+    list_display = ('username', 'email', 'company', 'first_name', 'last_name', 'is_staff')
     list_filter = ('is_staff', 'is_superuser', 'is_active')
-    search_fields = ('username', 'first_name', 'last_name', 'email')
+    search_fields = ('username', 'first_name', 'last_name', 'email', 'company')
     ordering = ('username',)
     filter_horizontal = ('groups', 'user_permissions',)
 
@@ -236,10 +236,7 @@ class BotAdmin(GuardedModelAdmin):
 
 
 class CompanyAdmin(GuardedModelAdmin):
-    list_display = ('name', 'created_by')
-    inlines = [
-        UsersInline
-    ]
+    list_display = ('name', )
 
     def has_view_permission(self, request, obj=None):
         if obj is None or request.user.has_perm('view_company', obj):
