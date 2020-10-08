@@ -6,7 +6,7 @@ class Command(BaseCommand):
     help = 'Create bots'
 
     def add_arguments(self, parser):
-        parser.add_argument('num_bots', nargs='+', type=int)
+        parser.add_argument('num_bots', type=int)
 
     def handle(self, *args, **options):
         company = Company.objects.get(name='One')
@@ -20,6 +20,7 @@ class Command(BaseCommand):
                     created_by=user)
 
                 bot.save()
+                count += 1
             except Exception:
                 raise CommandError('Bot no creado')
 

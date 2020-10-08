@@ -146,3 +146,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 
 STATIC_URL = '/static/'
+
+
+SILKY_MAX_REQUEST_BODY_SIZE = 0  # Silk takes anything <0 as no limit
+SILKY_MAX_RESPONSE_BODY_SIZE = 0  # If response body>1024kb, ignore
+SILKY_META = True

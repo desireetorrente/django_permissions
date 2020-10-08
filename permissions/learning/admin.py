@@ -195,42 +195,42 @@ class BotAdmin(GuardedModelAdmin):
     def save_model(self, request, bot, form, change):
         super().save_model(request, bot, form, change)
 
-        # if not (request.user.is_superuser or change):
-        #     bot.grant_permissions(request.user)
+        if not (request.user.is_superuser or change):
+            bot.grant_permissions(request.user)
 
-        # User = get_user_model()
-        # profiles = bot.company.userprofile_set.all()
-        # # Profiles with Admin Permissions Template
-        # users_admin_template = User.objects.filter(
-        #     userprofile__in=profiles,
-        #     groups__name='Admin Permissions Template')
-        # if users_admin_template:
-        #     bot.bulk_grant_permissions(
-        #         'Admin Permissions Template',
-        #         users_admin_template
-        #     )
+        User = get_user_model()
+        profiles = bot.company.userprofile_set.all()
+        # Profiles with Admin Permissions Template
+        users_admin_template = User.objects.filter(
+            userprofile__in=profiles,
+            groups__name='Admin Permissions Template')
+        if users_admin_template:
+            bot.bulk_grant_permissions(
+                'Admin Permissions Template',
+                users_admin_template
+            )
 
-        # # Profiles with Agent Permissions Template
-        # users_agent_template = User.objects.filter(
-        #     userprofile__in=profiles,
-        #     groups__name='Agent Permissions Template')
+        # Profiles with Agent Permissions Template
+        users_agent_template = User.objects.filter(
+            userprofile__in=profiles,
+            groups__name='Agent Permissions Template')
 
-        # if users_agent_template:
-        #     bot.bulk_grant_permissions(
-        #         'Agent Permissions Template',
-        #         users_agent_template
-        #     )
+        if users_agent_template:
+            bot.bulk_grant_permissions(
+                'Agent Permissions Template',
+                users_agent_template
+            )
 
-        # # Profiles with Employee Permissions Template
-        # users_employee_template = User.objects.filter(
-        #     userprofile__in=profiles,
-        #     groups__name='Employee Permissions Template')
+        # Profiles with Employee Permissions Template
+        users_employee_template = User.objects.filter(
+            userprofile__in=profiles,
+            groups__name='Employee Permissions Template')
 
-        # if users_employee_template:
-        #     bot.bulk_grant_permissions(
-        #         'Employee Permissions Template',
-        #         users_employee_template
-        #     )
+        if users_employee_template:
+            bot.bulk_grant_permissions(
+                'Employee Permissions Template',
+                users_employee_template
+            )
 
     make_published.short_description = "Publish bot"
 
