@@ -10,11 +10,10 @@ class UserCreationForm(forms.ModelForm):
     fields, plus a repeated password."""
     password1 = forms.CharField(label='Password', widget=forms.PasswordInput)
     password2 = forms.CharField(label='Password confirmation', widget=forms.PasswordInput)
-    company = forms.CharField(label='Company', widget=forms.ChoiceField)
 
     class Meta:
         model = get_user_model()
-        fields = ("username", "company")
+        fields = ("username",)
 
     def clean_password2(self):
         # Check that the two password entries match

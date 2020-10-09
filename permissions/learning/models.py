@@ -11,8 +11,23 @@ from guardian.shortcuts import assign_perm
 
 class User(AbstractUser):
 
+    class Role(models.TextChoices):
+        EDITOR = 'ED', _('Editor')
+        ADMIN = 'AD', _('Admin')
+        AGENT = 'AG', _('Agent')
+
     company = models.ForeignKey(
-        'Company', on_delete=models.SET_NULL, null=True, related_name='users')
+        'Company', 
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name='users'
+    )
+    role = models.CharField(
+        max_length=2,
+        choices=Role.choices,
+        default=Role.EDITOR,
+    )
+    work_position = models.CharField(max_length=100, blank=True)
 
     def grant_permissions(self, user):
         if user.has_perm('learning.view_user'):
@@ -26,12 +41,12 @@ class User(AbstractUser):
 
     def grant_company_permissions(self):
         if self.has_perm('learning.view_company'):
-            read_permissions = Group.objects.get(name=f"{self.userprofile.company.name}: Read")
+            read_permissions = Group.objects.get(name=f"{self.company.name}: Read")
             self.groups.add(read_permissions)
 
         if self.has_perm('learning.change_company') and not \
                 self.has_perm('learning.delete_company'):
-            own_permissions = Group.objects.get(name=f"{self.userprofile.company.name}: Own")
+            own_permissions = Group.objects.get(name=f"{self.company.name}: Own")
             self.groups.add(own_permissions)
 
 
@@ -136,31 +151,3 @@ class CompanyUserObjectPermission(UserObjectPermissionBase):
 
 class CompanyGroupObjectPermission(GroupObjectPermissionBase):
     content_object = models.ForeignKey(Company, on_delete=models.CASCADE)
-
-
-class UserProfile(models.Model):
-    class Role(models.TextChoices):
-        EDITOR = 'ED', _('Editor')
-        ADMIN = 'AD', _('Admin')
-        AGENT = 'AG', _('Agent')
-
-    id = models.UUIDField(
-        primary_key=True, 
-        default=uuid.uuid4, 
-        unique=True, 
-        editable=False
-    )
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    role = models.CharField(
-        max_length=2,
-        choices=Role.choices,
-        default=Role.EDITOR,
-    )
-    work_position = models.CharField(max_length=100)
-
-    class Meta:
-        verbose_name = "user profile"
-        verbose_name_plural = "user profiles"
-
-    def __str__(self):
-        return self.user.username

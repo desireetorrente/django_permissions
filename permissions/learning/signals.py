@@ -7,7 +7,7 @@ from django.contrib.auth.models import Group
 
 from guardian.shortcuts import assign_perm
 
-from .models import UserProfile, Company, Bot
+from .models import Company, Bot
 
 
 def delete_groups(instance):
@@ -60,11 +60,11 @@ def user_post_save(sender, **kwargs):
     user, created = kwargs["instance"], kwargs["created"]
 
     if not user.is_superuser:
-        user_role = user.userprofile.role
+        user_role = user.role
 
         if created and user.username != settings.ANONYMOUS_USER_NAME:
             # Global permissions
-            if user_role == UserProfile.Role.EDITOR:
+            if user_role == get_user_model().Role.EDITOR:
                 global_permissions_template = Group.objects.get(name=f"Employee Permissions Template")
                 # global_permissions = Permission.objects.filter(codename__in=[
                 #     'view_bot',
@@ -76,7 +76,7 @@ def user_post_save(sender, **kwargs):
                 #     'change_user',
                 # ])
 
-            if user_role == UserProfile.Role.ADMIN:
+            if user_role == get_user_model().Role.ADMIN:
                 global_permissions_template = Group.objects.get(name=f"Admin Permissions Template")
                 # global_permissions = Permission.objects.filter(codename__in=[
                 #     'view_bot',
@@ -91,7 +91,7 @@ def user_post_save(sender, **kwargs):
                 #     'delete_user',
                 # ])
 
-            if user_role == UserProfile.Role.AGENT:
+            if user_role == get_user_model().Role.AGENT:
                 global_permissions_template = Group.objects.get(name=f"Agent Permissions Template")
                 # global_permissions = Permission.objects.filter(codename__in=[
                 #     'view_bot',
@@ -128,8 +128,8 @@ def user_post_save(sender, **kwargs):
             user.groups.add(user_own_permissions)
 
             # Company permissions
-            company_read_permissions = Group.objects.get(name=f"{user.userprofile.company.name}: Read")
-            company_own_permissions = Group.objects.get(name=f"{user.userprofile.company.name}: Own")
+            company_read_permissions = Group.objects.get(name=f"{user.company.name}: Read")
+            company_own_permissions = Group.objects.get(name=f"{user.company.name}: Own")
 
             user.groups.add(company_read_permissions)
             user.groups.add(company_own_permissions)
