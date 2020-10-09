@@ -10,18 +10,18 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         company = Company.objects.get(name='One')
-        user = User.objects.get(username='john')
         count = 0
         while count <= options['num_users']:
             try:
                 user = User.objects.create(
                     username='user {}'.format(count),
                     password='admin1234.',
-                    company=company)
+                    company=company,
+                    role='AD')
 
                 user.save()
                 count += 1
-            except Exception:
-                raise CommandError('Usuario no creado')
+            except Exception as e:
+                raise CommandError('Usuario no creado {}'.format(e))
 
             self.stdout.write(self.style.SUCCESS('Usuario creado'))

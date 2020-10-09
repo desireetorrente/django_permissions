@@ -17,7 +17,7 @@ class User(AbstractUser):
         AGENT = 'AG', _('Agent')
 
     company = models.ForeignKey(
-        'Company', 
+        'Company',
         on_delete=models.SET_NULL,
         null=True,
         related_name='users'
@@ -48,6 +48,24 @@ class User(AbstractUser):
                 self.has_perm('learning.delete_company'):
             own_permissions = Group.objects.get(name=f"{self.company.name}: Own")
             self.groups.add(own_permissions)
+
+    def bulk_grant_permissions(self, template, users, bots):
+        # Grant permissions to a queryset of users
+
+        if template == 'Admin Permissions Template':
+            execute_permissions = Group.objects.get(
+                name=f"{self.name}: Execute")
+            execute_permissions.user_set.add(*users)
+            read_permissions.user_set.add(*users)
+            write_permissions.user_set.add(*users)
+
+        if template == 'Agent Permissions Template':
+            read_permissions.user_set.add(*users)
+            write_permissions.user_set.add(*users)
+
+        if template == 'Employee Permissions Template':
+            read_permissions.user_set.add(*users)
+            write_permissions.user_set.add(*users)
 
 
 # Create your models here.
