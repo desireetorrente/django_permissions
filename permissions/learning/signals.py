@@ -176,34 +176,3 @@ def company_post_delete(sender, **kwargs):
     """
     company = kwargs["instance"]
     delete_groups(company)
-
-@receiver(post_save, sender=Bot)
-def bot_post_save(sender, **kwargs):
-    """
-    Create all permission groups for the new created bot: Read, Write, Publish.
-    """
-    bot = kwargs["instance"]
-
-    # Specific permissions
-    read_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Read")
-    write_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Write")
-    execute_permissions_group, _ = Group.objects.get_or_create(name=f"{bot.name}: Execute")
-
-    # Read
-    assign_perm('view_bot', read_permissions_group, bot)
-
-    # Write
-    assign_perm('change_bot', write_permissions_group, bot)
-    assign_perm('delete_bot', write_permissions_group, bot)
-
-    # Execute
-    assign_perm('publish_bot', execute_permissions_group, bot)
-
-
-@receiver(post_delete, sender=Bot)
-def bot_post_delete(sender, **kwargs):
-    """
-    Delete all permission groups for the deleted bot: Read, Write, Execute.
-    """
-    bot = kwargs["instance"]
-    delete_groups(bot)

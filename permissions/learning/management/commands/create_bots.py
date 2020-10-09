@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         company = Company.objects.get(name='One')
-        user = User.objects.get(username='john')
+        user = User.objects.get(username='desi')
         count = 0
         while count <= options['num_bots']:
             try:
