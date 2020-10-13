@@ -174,3 +174,16 @@ class CompanyUserObjectPermission(UserObjectPermissionBase):
 
 class CompanyGroupObjectPermission(GroupObjectPermissionBase):
     content_object = models.ForeignKey(Company, on_delete=models.CASCADE)
+
+
+# Admin performance
+from django.core.paginator import Paginator
+# with a lot of result we don't need count because we, probably, 
+# use some filters.
+
+
+class NoCountPaginator(Paginator):
+    @property
+    def count(self):
+        return 999999999  # Some arbitrarily large number,
+        # so we can still get our page tab.

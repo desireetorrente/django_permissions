@@ -14,12 +14,20 @@ from silk.profiling.profiler import silk_profile
 from treenode.admin import TreeNodeModelAdmin
 from treenode.forms import TreeNodeForm
 
-from .models import Bot, Company
+from .models import Bot, Company, NoCountPaginator
 from .forms import UserChangeForm, UserCreationForm
+# Better admin performance https://levelup.gitconnected.com/@angysmark
 
 
+# Better performance inline
 class BotsInline(admin.TabularInline):
     model = Bot
+
+    fields = ('name', 'logo', 'created_by')
+    readonly_fields = ('name', 'logo', 'created_by')
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_related('created_by')
 
 
 class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
@@ -60,6 +68,8 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
     search_fields = ('username', 'first_name', 'last_name', 'email', 'company')
     ordering = ('username',)
     filter_horizontal = ('groups', 'user_permissions',)
+    paginator = NoCountPaginator
+    show_full_result_count = False
 
     def get_fieldsets(self, request, obj=None):
         if not obj:
@@ -122,13 +132,13 @@ class UserAdmin(GuardedModelAdminMixin, BaseUserAdmin):
         with silk_profile(name='Get user by company'):
             own_company_users = get_user_model().objects.filter(
                 company=user.company_id)
-            print('YYYYYYYYYYYYYYYYYYYYYYY  own_company_users', own_company_users)
+
+            company_children = user.company.children
             external_company_users = get_user_model().objects.filter(
-                groups__name=f'{user.company.name}: Read'
+                company__in=company_children
             )
-            print('YYYYYYYYYYYYYYYYYYYYYYY  external_company_users', external_company_users)
-            users = set(own_company_users) + set(external_company_users)
-            print('YYYYYYYYYYYYYYYYYYYYYYY  USERS', user)
+
+            users = own_company_users | external_company_users
 
             # Profiles with Admin Permissions Template
             if user.role == get_user_model().Role.ADMIN:
@@ -190,6 +200,8 @@ class UserProfileAdmin(GuardedModelAdmin):
 class BotAdmin(GuardedModelAdmin):
     list_display = ('name', 'company', 'created_by')
     actions = ['make_published']
+    paginator = NoCountPaginator
+    show_full_result_count = False
 
     def get_queryset(self, request):
         qs = super().get_queryset(request)
@@ -218,6 +230,9 @@ class CompanyAdmin(GuardedModelAdmin, TreeNodeModelAdmin):
     treenode_display_mode = TreeNodeModelAdmin.TREENODE_DISPLAY_MODE_ACCORDION
     # list_display = ('name', )
     form = TreeNodeForm
+    inlines = (BotsInline,)
+    paginator = NoCountPaginator
+    show_full_result_count = False
 
     def has_view_permission(self, request, obj=None):
         if obj is None or request.user.has_perm('view_company', obj):
