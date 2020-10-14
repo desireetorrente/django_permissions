@@ -43,7 +43,7 @@ class User(AbstractUser):
             write_permissions = Group.objects.get(name=f"{self.username}: Write")
             user.groups.add(write_permissions)
 
-    def grant_company_permissions(self):
+    def grant_own_company_permissions(self):
         if self.has_perm('learning.view_company'):
             read_permissions = Group.objects.get(name=f"{self.company.name}: Read")
             self.groups.add(read_permissions)

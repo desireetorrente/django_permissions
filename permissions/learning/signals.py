@@ -128,11 +128,7 @@ def user_post_save(sender, **kwargs):
             user.groups.add(user_own_permissions)
 
             # Company permissions
-            company_read_permissions = Group.objects.get(name=f"{user.company.name}: Read")
-            company_own_permissions = Group.objects.get(name=f"{user.company.name}: Own")
-
-            user.groups.add(company_read_permissions)
-            user.groups.add(company_own_permissions)
+            user.grant_own_company_permissions()
 
 
 @receiver(post_delete, sender=get_user_model())
