@@ -12,8 +12,10 @@ from silk.profiling.profiler import silk_profile
 
 from treenode.models import TreeNodeModel
 
+from .mixins import BotxoPermissionsMixin
 
-class User(AbstractUser):
+
+class User(BotxoPermissionsMixin, AbstractUser):
 
     class Role(models.TextChoices):
         EDITOR = 'ED', _('Editor')
@@ -90,7 +92,7 @@ class Bot(models.Model):
     name = models.CharField(max_length=100)
     logo = models.ImageField(upload_to='img/', blank=True)
     company = models.ForeignKey(
-        'Company', on_delete=models.CASCADE, null=True, related_name='bots')
+        'Company', on_delete=models.CASCADE, related_name='bots')
     created_by = models.ForeignKey(User, null=True, on_delete=models.SET_NULL)
 
     class Meta:
